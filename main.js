@@ -1,5 +1,5 @@
-const numbersContainer = document.getElementById('numbers');
-const generateBtn = document.getElementById('generate-btn');
+const foodResult = document.getElementById('food-result');
+const recommendBtn = document.getElementById('recommend-btn');
 const themeBtn = document.getElementById('theme-btn');
 const body = document.body;
 
@@ -19,25 +19,38 @@ function toggleTheme() {
 
 themeBtn.addEventListener('click', toggleTheme);
 
-function generateLottoNumbers() {
-    numbersContainer.innerHTML = '';
-    const numbers = new Set();
-    while(numbers.size < 6) {
-        const randomNumber = Math.floor(Math.random() * 45) + 1;
-        numbers.add(randomNumber);
-    }
+const foodList = [
+    '짜장면', '짬뽕', '탕수육', '치킨', '피자', '햄버거', '초밥', '라멘', '돈카츠',
+    '삼겹살', '김치찌개', '된장찌개', '비빔밥', '제육볶음', '떡볶이', '김밥',
+    '파스타', '스테이크', '샌드위치', '쌀국수', '마라탕', '훠궈', '양꼬치',
+    '족발', '보쌈', '아구찜', '회', '산낙지', '우동', '소바', '칼국수', '수제비'
+];
 
-    const sortedNumbers = Array.from(numbers).sort((a, b) => a - b);
+function recommendFood() {
+    recommendBtn.disabled = true;
+    foodResult.innerHTML = '';
+    
+    // 로딩 애니메이션 효과를 위해 임시 텍스트 표시
+    const loadingDiv = document.createElement('div');
+    loadingDiv.classList.add('food-menu');
+    loadingDiv.textContent = '...';
+    foodResult.appendChild(loadingDiv);
 
-    sortedNumbers.forEach(number => {
-        const numberDiv = document.createElement('div');
-        numberDiv.classList.add('number');
-        numberDiv.textContent = number;
-        numbersContainer.appendChild(numberDiv);
-    });
+    setTimeout(() => {
+        const randomIndex = Math.floor(Math.random() * foodList.length);
+        const selectedFood = foodList[randomIndex];
+
+        foodResult.innerHTML = '';
+        const foodDiv = document.createElement('div');
+        foodDiv.classList.add('food-menu');
+        foodDiv.textContent = selectedFood;
+        foodResult.appendChild(foodDiv);
+        
+        recommendBtn.disabled = false;
+    }, 500);
 }
 
-generateBtn.addEventListener('click', generateLottoNumbers);
+recommendBtn.addEventListener('click', recommendFood);
 
-// 초기 로딩 시 번호 생성
-generateLottoNumbers();
+// 초기 로딩 시 메뉴 추천
+recommendFood();

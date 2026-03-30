@@ -68,46 +68,55 @@ h1 {
     margin-bottom: 20px;
 }
 
-.numbers-container {
+.food-container {
     display: flex;
     justify-content: center;
-    gap: 10px;
     margin-bottom: 30px;
+    min-height: 80px;
+    align-items: center;
 }
 
-.number {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
+.food-menu {
+    padding: 15px 40px;
+    border-radius: 40px;
     background-color: var(--number-bg);
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 24px;
-    font-weight: bold;
+    font-size: 2.5rem;
+    font-weight: 800;
     color: var(--text-color);
-    box-shadow: 0 2px 5px var(--shadow-color);
-    transition: background-color 0.3s ease, color 0.3s ease;
+    box-shadow: 0 4px 15px var(--shadow-color);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: popIn 0.5s ease;
 }
 
-#generate-btn {
+@keyframes popIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+#recommend-btn {
     background-color: var(--btn-bg);
     color: white;
     border: none;
-    padding: 15px 30px;
-    border-radius: 8px;
-    font-size: 18px;
+    padding: 18px 40px;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.1s;
+    transition: all 0.3s ease;
     box-shadow: 0 4px 10px var(--shadow-color);
 }
 
-#generate-btn:hover {
+#recommend-btn:hover {
     background-color: var(--btn-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px var(--shadow-color);
 }
 
-#generate-btn:active {
-    transform: scale(0.98);
+#recommend-btn:active {
+    transform: scale(0.98) translateY(0);
 }
 
 .divider {
