@@ -16,9 +16,9 @@ function toggleTheme() {
 }
 themeBtn.addEventListener('click', toggleTheme);
 
-// 음식명 → 위키백과(Wikipedia) 최적화 매핑 (사진 퀄리티 및 정확도 중심)
+// 음식명 → 위키백과(Wikipedia) 정밀 매핑 (고화질 요리 사진 위주)
 const foodMapping = {
-    // 한식 (대표 사진이 잘 등록된 명칭으로 통일)
+    // 한식
     '김치찌개': '김치찌개', '된장찌개': '된장찌개', '순두부찌개': '순두부찌개',
     '부대찌개': '부대찌개', '청국장': '청국장', '비빔밥': '비빔밥',
     '돌솥비빔밥': '비빔밥', '제육볶음': '제육볶음', '불고기': '불고기',
@@ -29,10 +29,11 @@ const foodMapping = {
     '비빔냉면': '냉면', '잔치국수': '잔치국수', '육개장': '육개장',
     '해물파전': '파전', '낙지볶음': '낙지볶음', '오징어볶음': '오징어볶음',
     '아구찜': '아귀찜', '닭갈비': '닭갈비', '닭볶음탕': '닭볶음탕',
-    '치킨': '프라이드치킨', '양념치킨': '양념치킨', '회': '생선회',
-    '물회': '물회', '연어회': '연어', '감자탕': '감자탕',
-    '순대국': '순대', '콩나물국밥': '콩나물국밥', '추어탕': '추어탕',
-    '고등어조림': '고등어조림', '갈치조림': '갈치조림', '매운탕': '매운탕',
+    '치킨': '프라이드치킨', '양념치킨': '양념치킨', 
+    '회': '생선회', '물회': '물회', 
+    '연어회': '생선회', // '연어'는 생선 사진이 나오므로 요리 형태인 '생선회'로 대체
+    '감자탕': '감자탕', '순대국': '순대', '콩나물국밥': '콩나물국밥', 
+    '추어탕': '추어탕', '고등어조림': '고등어조림', '갈치조림': '갈치조림', '매운탕': '매운탕',
 
     // 중식
     '짜장면': '자장면', '짬뽕': '짬뽕', '탕수육': '탕수육',
@@ -40,15 +41,16 @@ const foodMapping = {
     '훠궈': '훠궈', '양꼬치': '양꼬치', '딤섬': '딤섬',
     '깐풍기': '깐풍기', '유린기': '유린기', '꿔바로우': '탕수육',
 
-    // 일식 (소바 등 특정 메뉴 정밀 수정)
-    '초밥': '초밥', '라멘': '라멘', '우동': '우동', 
-    '소바': '자루소바', // '메밀국수'보다 '자루소바'가 정갈한 음식 사진이 많음
+    // 일식
+    '초밥': '스시', // '초밥'보다 '스시' 키워드가 위키백과에서 더 확실한 사진을 제공함
+    '라멘': '라멘', '우동': '우동', '소바': '자루소바',
     '돈카츠': '돈가스', '타코야키': '타코야키', '오코노미야끼': '오코노미야키',
     '규동': '규동', '샤브샤브': '샤부샤부', '카레라이스': '카레라이스',
     '가라아게': '가라아게', '텐동': '텐동',
 
     // 양식
-    '파스타': '파스타', '스테이크': '스테이크', '리조또': '리조토',
+    '파스타': '카르보나라', // 일반 파스타보다 구체적인 요리인 '카르보나라'가 더 먹음직스러운 사진이 많음
+    '스테이크': '스테이크', '리조또': '리조토',
     '피자': '피자', '햄버거': '햄버거', '샌드위치': '샌드위치',
     '시저샐러드': '시저 샐러드', '라자냐': '라자냐',
     '감바스': '감바스 알 아히요', '에그 베네딕트': '에그 베네딕트',
@@ -81,8 +83,9 @@ async function showFoodImage(foodName) {
 
     try {
         const searchTerm = foodMapping[foodName] || foodName;
+        // 위키백과 API 호출 (1000px 고화질)
         const res = await fetch(
-            `https://ko.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(searchTerm)}&prop=pageimages&format=json&pithumbsize=800&origin=*`
+            `https://ko.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(searchTerm)}&prop=pageimages&format=json&pithumbsize=1000&origin=*`
         );
         const data = await res.json();
         const pages = data.query.pages;
@@ -97,7 +100,20 @@ async function showFoodImage(foodName) {
                 foodImage.style.opacity = '1';
             };
         } else {
-            // 위키백과에 사진이 없는 경우 대비 (숨김 처리)
+            // 해당 키워드로 사진이 없을 경우 원래 메뉴 이름으로 재시도
+            if (searchTerm !== foodName) {
+                const retryRes = await fetch(
+                    `https://ko.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(foodName)}&prop=pageimages&format=json&pithumbsize=1000&origin=*`
+                );
+                const retryData = await retryRes.json();
+                const retryPage = Object.values(retryData.query.pages)[0];
+                if (retryPage.thumbnail && retryPage.thumbnail.source) {
+                    foodImage.src = retryPage.thumbnail.source;
+                    foodImage.style.display = 'block';
+                    foodImage.style.opacity = '1';
+                    return;
+                }
+            }
             foodImage.style.display = 'none';
         }
     } catch (e) {
